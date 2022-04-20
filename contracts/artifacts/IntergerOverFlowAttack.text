@@ -1,0 +1,32 @@
+  
+Vulnerable function
+(intergerOverFlowAttack)
+  
+      function batchTransfer(address[] _receivers, uint256 _value) public whenNotPaused returns (bool) {
+2.          uint cnt = _receivers.length;
+3.          uint256 amount = uint256(cnt) * _value;
+4.          require(cnt > 0 && cnt <= 20);
+5.          require(_value > 0 && balances[msg.sender] >= amount);
+6.   
+7.   
+8.          balances[msg.sender] = balances[msg.sender].sub(amount);
+9.          for (uint i = 0; i < cnt; i++) {
+10.        balances[_receivers[i]] = balances[_receivers[i]].add(_value);
+11.              Transfer(msg.sender, _receivers[i], _value);
+12.       }
+13.      return true;
+14.}
+ 
+
+The issue with this function is it’s performing a balance check against the amount on line 5 but that amount value comes from
+ a mathematical operation on line 3 which has an overflow vulnerability.
+
+You will see that the amount results from multiplying the length of the array times the value being sent. Since there are no 
+checks that this mathematical operation does not overflow to a value lower than our balance, we can easily set the amount to 0 
+using a very large number as our _value.
+
+When the actual balances are updated on line 10, we are not using the amount of 0, but instead we are using the initial large 
+_value sent to the function, but this time there is no multiplication,  so it does not cause an overflow, it only updates the
+ value to a very large number. 
+
+ 
