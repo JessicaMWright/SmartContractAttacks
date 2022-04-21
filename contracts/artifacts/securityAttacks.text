@@ -1,0 +1,47 @@
+  
+Vulnerable function
+(intergerOverFlowAttack)
+  
+      function batchTransfer(address[] _receivers, uint256 _value) public whenNotPaused returns (bool) {
+2.          uint cnt = _receivers.length;
+3.          uint256 amount = uint256(cnt) * _value;
+4.          require(cnt > 0 && cnt <= 20);
+5.          require(_value > 0 && balances[msg.sender] >= amount);
+6.   
+7.   
+8.          balances[msg.sender] = balances[msg.sender].sub(amount);
+9.          for (uint i = 0; i < cnt; i++) {
+10.        balances[_receivers[i]] = balances[_receivers[i]].add(_value);
+11.              Transfer(msg.sender, _receivers[i], _value);
+12.       }
+13.      return true;
+14.}
+ 
+
+
+Reentrancy Example Code
+
+
+
+1.  pragma solidity ^0.6.6;
+2.   
+3.  contract simpleReentrancy {
+4.    mapping (address => uint) private balances;
+5.      
+6.    function deposit() public payable  {
+7.     require((balances[msg.sender] + msg.value) >= balances[msg.sender]);
+8.                           balances[msg.sender] += msg.value;
+9.    }
+10. 
+11. function withdraw(uint withdrawAmount) public returns (uint) {
+12.  require(withdrawAmount <= balances[msg.sender]);
+13.                         msg.sender.call.value(withdrawAmount)("");
+14.    
+15.   balances[msg.sender] -= withdrawAmount;
+16.   return balances[msg.sender];
+17. }
+18.    
+19. function getBalance() public view returns (uint){
+20.   return balances[msg.sender];
+21. }
+22.}
