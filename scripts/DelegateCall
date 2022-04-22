@@ -1,0 +1,41 @@
+
+
+
+
+Delegate Call vs Call
+Delegate calls are used to call the functionality of the logic contract but have the changes reflected in the context
+ of the calling contract. It essentially behaves as if you imported the functionality of the logic contract into the 
+ calling contract and the changes are reflected in the context of the calling contract. This behaves much like importing
+  libraries when you are coding large projects and using that functionality as if it were part of your project.
+
+Vs
+
+The regular call acts more like a remote API where we are making changes on the remote logic contract rather than our
+ calling contract. When using a regular call, we are calling the logic contract but the effects of that are retained 
+ within the logic contract. Rather than in the context of the calling contract. 
+
+ DelegateCall Storage Walkthrough
+ 
+
+In the action steps above you would have noticed that when you set the value of “a” the value of “b” was the value that
+ changed. Why is this?
+
+ 
+
+So, we have to start thinking in which context we are using when calling the contract. The image below should help to 
+clear this up.  Take a look at that image for a minute and try to think about what happened.
+
+ 
+
+
+
+ 
+
+
+ 
+
+So, in the calling contract we have “b”, “a” and “Logic_Pointer”. Then we have the variable “a” in the logic contract. 
+When using a delegatecall we are executing the set function in the logic contract under the context of the calling 
+contract which has those 3 variables with “b” being the first variable. You see where I am going with this?  Essentially
+ the logic contract only knows about the “a” variable and sets the first element in the memory to that value. However,
+  we are in the context of the calling contract, and the calling contracts first memory slot is the variable “b”.
